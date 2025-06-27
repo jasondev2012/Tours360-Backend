@@ -16,17 +16,24 @@ public class DestinoEntity {
     private Integer id;
 
     private String titulo;
+
+    @Lob
     private String descripcion;
-    private BigDecimal precio;
+    private BigDecimal precioBase;
     private BigDecimal precioVenta;
     
     @ManyToOne
     @JoinColumn(name = "idValoracion", referencedColumnName = "id")
     private ValoracionEntity valoracion;
 
-    private Integer valoracion;
-    private Short nivelExigencia;
-    private Short categoria;
+    @ManyToOne
+    @JoinColumn(name = "idNivelExigencia", referencedColumnName = "id")
+    private NivelExigenciaEntity nivelExigencia;
+
+    @ManyToOne
+    @JoinColumn(name = "idCategoria", referencedColumnName = "id")
+    private CategoriaEntity categoria;
+
 
     @ManyToOne
     @JoinColumn(name = "codigoDepartamento", referencedColumnName = "codigo")
