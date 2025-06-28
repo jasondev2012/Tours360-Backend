@@ -1,18 +1,17 @@
 package com.hs.agencia360.entities.seguridad;
+import com.hs.agencia360.entities.AuditoriaEstatusEntity;
 import com.hs.agencia360.entities.catalogo.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Setter
 @Getter
 @Entity
 @Table(name = "persona", schema = "seguridad")
-public class PersonaEntity {
+public class PersonaEntity extends AuditoriaEstatusEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +32,6 @@ public class PersonaEntity {
 
     private LocalDate fechaNacimiento;
 
-    @ManyToOne
-    @JoinColumn(name = "idEstatus", referencedColumnName = "id")
-    private EstatusEntity estatus;
 
     @ManyToOne
     @JoinColumn(name = "codigoDepartamentoNacimiento", referencedColumnName = "codigo")
@@ -53,8 +49,4 @@ public class PersonaEntity {
     @JoinColumn(name = "codigoNacionalidad", referencedColumnName = "codigo")
     private NacionalidadEntity nacionalidad;
 
-    private Integer idUsuarioAlta;
-    private LocalDateTime fechaAlta;
-    private Integer idUsuarioModifica;
-    private LocalDateTime fechaModifica;
 }

@@ -12,6 +12,8 @@ import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -27,12 +29,20 @@ public class JwtServiceImpl {
         AuthResponse authResponse = new AuthResponse();
         LocalDateTime expiracion = LocalDateTime.now().plusHours(10); // 10 horas
 
-        // Conviértelo a java.util.Date
         Date expirationDate = Date.from(expiracion.atZone(ZoneId.systemDefault()).toInstant());
         authResponse.expira = expiracion;
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("nombre", user.getPersona().getNombres());
+        claims.put("rol", user.getRol().getNombre());
+        claims.put("idAgencia", user.getAgencia().getId());
+        claims.put("urlAgencia", user.getAgencia().getNombreUrl());
+        claims.put("email", user.getUsuario());
+
         authResponse.token = Jwts.builder()
                 .setSubject(user.getUsuario())
                 .setId(user.getId().toString())
+                .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(expirationDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
