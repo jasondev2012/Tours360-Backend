@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CustomResponse<T> {
     private boolean success;
+    private Short code;
     private String message;
     private T data;
 }

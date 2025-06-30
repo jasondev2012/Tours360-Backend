@@ -3,6 +3,7 @@ package com.hs.tours360.services.seguridad.impl;
 import com.hs.tours360.dto.CustomResponse;
 import com.hs.tours360.dto.seguridad.auth.AuthRequest;
 import com.hs.tours360.dto.seguridad.auth.AuthResponse;
+import com.hs.tours360.dto.seguridad.auth.RegistroRequest;
 import com.hs.tours360.entities.seguridad.UsuarioEntity;
 import com.hs.tours360.repositories.seguridad.UsuarioRepository;
 import com.hs.tours360.services.seguridad.AuthService;
@@ -42,6 +43,15 @@ public class AuthServiceImpl implements AuthService {
         response.setSuccess(true);
         response.setData(data);
         response.setMessage("Autenticación exitosa");
+        return response;
+    }
+
+    @Override
+    public CustomResponse<String> registrar(RegistroRequest registroRequest) {
+        CustomResponse<String> response = new CustomResponse<>();
+        response.setSuccess(false);
+        response.setCode((short)400);
+        response.setMessage("Usuario no registrado");
         return response;
     }
 }
