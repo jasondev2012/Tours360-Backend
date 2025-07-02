@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Entity
 @Table(name = "nacionalidad", schema = "catalogo")
-public class NacionalidadEntity {
+public class PaisEntity {
 
     @Id
     private String codigo;

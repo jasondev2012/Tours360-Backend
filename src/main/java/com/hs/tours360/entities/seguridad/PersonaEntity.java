@@ -47,6 +47,6 @@ public class PersonaEntity extends AuditoriaEstatusEntity {
 
     @ManyToOne
     @JoinColumn(name = "codigoNacionalidad", referencedColumnName = "codigo")
-    private NacionalidadEntity nacionalidad;
+    private PaisEntity nacionalidad;
 
 }
