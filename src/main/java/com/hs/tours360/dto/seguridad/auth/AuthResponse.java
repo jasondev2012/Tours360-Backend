@@ -9,5 +9,6 @@ public class AuthResponse {
     public String fullname;
     public String usuario;
     public String agencia;
+    public String logoAgencia;
 
 }

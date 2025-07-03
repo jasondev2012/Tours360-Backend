@@ -37,6 +37,7 @@ public class JwtServiceImpl {
                 user.getPersona().getSegundoApellido());
         authResponse.usuario = user.getUsuario();
         authResponse.agencia = user.getAgencia().getNombreUrl();
+        authResponse.logoAgencia = user.getAgencia().getLogoUrl();
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("nombre", user.getPersona().getNombres());

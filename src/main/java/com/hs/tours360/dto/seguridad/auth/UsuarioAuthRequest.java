@@ -1,5 +1,8 @@
 package com.hs.tours360.dto.seguridad.auth;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
