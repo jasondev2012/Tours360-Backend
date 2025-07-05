@@ -7,5 +7,5 @@ import com.hs.tours360.dto.seguridad.auth.RegistroRequest;
 
 public interface AuthService {
     CustomResponse<AuthResponse> authenticate(AuthRequest authRequest);
-    CustomResponse<String> registrar(RegistroRequest registroRequest);
+    CustomResponse<Integer> registrar(RegistroRequest registroRequest);
 }

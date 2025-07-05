@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class AgenciaAuthRequest {
     private String nombreUrl;
-    private String logoUrl;
 }

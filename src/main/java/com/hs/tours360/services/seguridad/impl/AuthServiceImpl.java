@@ -64,9 +64,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public CustomResponse<String> registrar(RegistroRequest req) {
+    public CustomResponse<Integer> registrar(RegistroRequest req) {
 
-        CustomResponse<String> response = new CustomResponse<>();
+        CustomResponse<Integer> response = new CustomResponse<>();
         try {
             LocalDateTime fechaAlta = LocalDateTime.now();
             short estatusId = 1;
@@ -88,8 +88,9 @@ public class AuthServiceImpl implements AuthService {
             usuarioRepo.save(usuario);
 
 
-            response.setSuccess(false);
+            response.setSuccess(true);
             response.setCode((short)200);
+            response.setData(agenciaGuardada.getId());
             response.setMessage("Datos guardados correctamente");
         } catch(Exception ex){
             response.setSuccess(false);
@@ -136,7 +137,6 @@ public class AuthServiceImpl implements AuthService {
     private AgenciaEntity mapToAgenciaEntity(RegistroRequest req, EmpresaEntity empresa, EstatusEntity estatus, LocalDateTime fechaAlta, int idUsuarioAlta) {
         AgenciaEntity agencia = new AgenciaEntity();
         agencia.setNombreUrl(req.getAgencia().getNombreUrl());
-        agencia.setLogoUrl(req.getAgencia().getLogoUrl());
         agencia.setEmpresa(empresa);
         agencia.setEstatus(estatus);
         agencia.setFechaAlta(fechaAlta);

@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -21,6 +22,8 @@ public class JwtServiceImpl {
 
     private static final String SECRET_KEY = "proye-ctodeja-son-paral-ages-tionde-co-gios1-2025062422";
 
+    @Value("${app.url.base}")
+    private String appUrlBase;
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
@@ -37,7 +40,8 @@ public class JwtServiceImpl {
                 user.getPersona().getSegundoApellido());
         authResponse.usuario = user.getUsuario();
         authResponse.agencia = user.getAgencia().getNombreUrl();
-        authResponse.logoAgencia = user.getAgencia().getLogoUrl();
+
+        authResponse.logoAgencia = appUrlBase + "/api/file/agencia-logo/" + user.getAgencia().getId() + "/" + user.getAgencia().getLogo();
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("nombre", user.getPersona().getNombres());
@@ -58,9 +62,15 @@ public class JwtServiceImpl {
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        return extractAllClaims(token).get("email", String.class);
     }
-
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
     public <T> T extractClaim(String token, Function<io.jsonwebtoken.Claims, T> claimsResolver) {
         final var claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())

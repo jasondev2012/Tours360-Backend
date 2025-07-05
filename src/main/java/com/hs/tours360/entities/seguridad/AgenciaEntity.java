@@ -21,6 +21,6 @@ public class AgenciaEntity extends AuditoriaEstatusEntity {
     private EmpresaEntity empresa;
 
     private String nombreUrl;
-    private String logoUrl;
+    private String logo;
 
 }

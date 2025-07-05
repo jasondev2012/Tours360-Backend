@@ -89,8 +89,8 @@ public class AuthRegisterValidator implements ConstraintValidator<ValidRegistroA
             return false;
         }
 
-        valido &= validarCampo(agencia.getNombreUrl(), "agencia.nombreUrl", "Debe ingresar el nombre URL de la agencia.", context);
-        valido &= validarCampo(agencia.getLogoUrl(), "agencia.logoUrl", "Debe ingresar la URL del logo de la agencia.", context);
+        valido = validarCampo(agencia.getNombreUrl(), "agencia.nombreUrl", "Debe ingresar el nombre URL de la agencia.", context);
+        //valido &= validarCampo(agencia.getLogo(), "agencia.logoUrl", "Debe ingresar la URL del logo de la agencia.", context);
         if(agencia.getNombreUrl() != null && !agencia.getNombreUrl().isBlank()){
             AgenciaEntity agenciaEncontrada = agenciaRepository.findFirstByNombreUrl(agencia.getNombreUrl().replaceAll(" ", "")).orElse(null);
             if(agenciaEncontrada != null){
