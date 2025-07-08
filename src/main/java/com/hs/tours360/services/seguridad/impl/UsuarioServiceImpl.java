@@ -5,6 +5,7 @@ import com.hs.tours360.dto.seguridad.usuario.UsuarioResponse;
 import com.hs.tours360.entities.seguridad.UsuarioEntity;
 import com.hs.tours360.repositories.seguridad.UsuarioRepository;
 import com.hs.tours360.services.seguridad.UsuarioService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +13,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository repo;
-
-    public UsuarioServiceImpl(UsuarioRepository repo) {
-        this.repo = repo;
-    }
 
     @Override
     public List<UsuarioResponse> listar() {

@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
         // Omitir rutas públicas
-        if (path.startsWith("/api/auth/") || path.startsWith("/api/catalogo/") || path.startsWith("/api/file/")) {
+        if (path.startsWith("/api/auth/") || path.startsWith("/api/catalogo/auth-listar") || path.startsWith("/api/file/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -36,6 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String username;
+        final Integer idAgencia;
+        final Integer idUsuario;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -46,6 +48,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         try {
             username = jwtService.extractUsername(jwt);
+            idAgencia = jwtService.extractClaim(jwt, claims -> claims.get("idAgencia", Integer.class));
+            RequestContext.setAgenciaId(idAgencia);
         } catch (Exception e) {
             // Token inválido (mal formado, firmado incorrectamente, etc.)
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -57,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var usuario = usuarioRepo.findByUsuario(username).orElse(null);
 
             if (usuario != null && jwtService.isTokenValid(jwt, usuario.getUsuario())) {
+                RequestContext.setUsuarioId(usuario.getId());
                 var authToken = new UsernamePasswordAuthenticationToken(
                         usuario, null, null
                 );
@@ -70,8 +75,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         }
-
-        filterChain.doFilter(request, response);
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            RequestContext.clear();
+        }
     }
 
 }

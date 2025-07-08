@@ -1,16 +1,19 @@
 package com.hs.tours360.services.catalogo.impl;
 
+import com.hs.tours360.config.RequestContext;
 import com.hs.tours360.constants.CatalogoConstants;
 import com.hs.tours360.dto.CustomResponse;
 import com.hs.tours360.dto.catalogo.CatalogoReponse;
 import com.hs.tours360.repositories.catalogo.*;
 import com.hs.tours360.services.catalogo.CatalogoService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.function.Function;
 
 @Service
+@AllArgsConstructor
 public class CatalogoServiceImpl implements CatalogoService {
 
     private final DepartamentoRepository departamentoRepository;
@@ -18,22 +21,12 @@ public class CatalogoServiceImpl implements CatalogoService {
     private final DistritoRepository distritoRepository;
     private final DocumentoIdentidadRepository documentoIdentidadRepository;
     private final PaisRepository paisRepository;
-
-    public CatalogoServiceImpl(DepartamentoRepository departamentoRepository,
-                               ProvinciaRepository provinciaRepository,
-                               DistritoRepository distritoRepository,
-                               DocumentoIdentidadRepository documentoIdentidadRepository,
-                               PaisRepository paisRepository) {
-        this.departamentoRepository = departamentoRepository;
-        this.provinciaRepository = provinciaRepository;
-        this.distritoRepository = distritoRepository;
-        this.documentoIdentidadRepository = documentoIdentidadRepository;
-        this.paisRepository = paisRepository;
-    }
-
+    private final CategoriaRepository categoriaRepository;
+    private final NivelExigenciaRepository nivelExigenciaRepository;
     @Override
     public CustomResponse<List<CatalogoReponse>> listar(String catalogo, String padre) {
         CustomResponse<List<CatalogoReponse>> response = new CustomResponse<>();
+        Integer idAgencia = RequestContext.getAgenciaId();
 
         switch (catalogo) {
             case CatalogoConstants.DEPARTAMENTO -> response = buildResponse(
@@ -65,7 +58,16 @@ public class CatalogoServiceImpl implements CatalogoService {
                     paisRepository.findAllByActivoTrue(),
                     pais -> new CatalogoReponse(pais.getCodigo(), pais.getNombre())
             );
-
+            case CatalogoConstants.CATEGORIA_DESTINO -> response = buildResponse(
+                    "Categorìas encontradas",
+                    categoriaRepository.findAllByAgenciaIdAndActivoTrue(idAgencia),
+                    categoria -> new CatalogoReponse((int)categoria.getId(), categoria.getNombre())
+            );
+            case CatalogoConstants.NIVEL_EXIGENCIA -> response = buildResponse(
+                    "Nieveles encontrados",
+                    nivelExigenciaRepository.findAllByActivoTrue(),
+                    nivel -> new CatalogoReponse((int)nivel.getId(), nivel.getNombre())
+            );
             default -> {
                 response.setSuccess(false);
                 response.setMessage("Catálogo no soportado");

@@ -8,6 +8,7 @@ import com.hs.tours360.repositories.seguridad.AgenciaRepository;
 import com.hs.tours360.services.seguridad.AuthService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,13 +22,10 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 public class AuthController {
     private final AuthService service;
     private final AgenciaRepository agenciaRepository;
-    public AuthController(AuthService authService, AgenciaRepository agenciaRepository) {
-        this.service = authService;
-        this.agenciaRepository = agenciaRepository;
-    }
 
     @PostMapping("/authenticate")
     public CustomResponse<AuthResponse> authenticate(@RequestBody AuthRequest request) {

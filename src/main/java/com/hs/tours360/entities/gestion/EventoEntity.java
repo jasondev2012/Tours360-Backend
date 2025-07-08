@@ -23,10 +23,16 @@ public class EventoEntity extends AuditoriaEstatusEntity {
     private DestinoEntity destino;
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal precioBase;
+    private BigDecimal precioBaseSoles;
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal precioVenta;
+    private BigDecimal precioVentaSoles;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precioBaseDolares;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precioVentaDolares;
 
     @Column(precision = 5, scale = 2)
     private BigDecimal descuento;

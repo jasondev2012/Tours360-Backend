@@ -1,6 +1,7 @@
 package com.hs.tours360.entities.catalogo;
 
 
+import com.hs.tours360.entities.seguridad.AgenciaEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,4 +19,8 @@ public class CategoriaEntity {
 
     private String nombre;
     private Boolean activo;
+
+    @ManyToOne
+    @JoinColumn(name = "idAgencia", referencedColumnName = "id")
+    private AgenciaEntity agencia;
 }

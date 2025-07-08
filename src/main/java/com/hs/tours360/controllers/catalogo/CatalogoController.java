@@ -15,6 +15,10 @@ public class CatalogoController {
         this.service = catalogoService;
     }
 
+    @GetMapping("/auth-listar")
+    public CustomResponse<List<CatalogoReponse>> authListar(@RequestParam String catalogo, @RequestParam(required = false) String padre) {
+        return service.listar(catalogo, padre);
+    }
     @GetMapping("/listar")
     public CustomResponse<List<CatalogoReponse>> listar(@RequestParam String catalogo, @RequestParam(required = false) String padre) {
         return service.listar(catalogo, padre);

@@ -1,6 +1,6 @@
 package com.hs.tours360.entities.gestion;
 
-import com.hs.tours360.entities.AuditoriaEstatusEntity;
+import com.hs.tours360.entities.AuditoriaEntity;
 import com.hs.tours360.entities.catalogo.*;
 import com.hs.tours360.entities.seguridad.AgenciaEntity;
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Getter
 @Entity
 @Table(name = "destino", schema = "gestion")
-public class DestinoEntity extends AuditoriaEstatusEntity {
+public class DestinoEntity extends AuditoriaEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,18 +25,22 @@ public class DestinoEntity extends AuditoriaEstatusEntity {
 
     private String titulo;
 
+    private String subtitulo;
+
     @Lob
     private String descripcion;
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal precioBase;
+    private BigDecimal precioBaseSoles;
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal precioVenta;
-    
-    @ManyToOne
-    @JoinColumn(name = "idValoracion", referencedColumnName = "id")
-    private ValoracionEntity valoracion;
+    private BigDecimal precioVentaSoles;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precioBaseDolares;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal precioVentaDolares;
 
     @ManyToOne
     @JoinColumn(name = "idNivelExigencia", referencedColumnName = "id")

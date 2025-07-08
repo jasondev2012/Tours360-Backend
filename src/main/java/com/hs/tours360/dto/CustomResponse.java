@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomResponse<T> {
-    private boolean success;
-    private Short code;
-    private String message;
+    private boolean success = true;
+    private Short code = 200;
+    private String message = "Operación exitosa";
     private T data;
 }
