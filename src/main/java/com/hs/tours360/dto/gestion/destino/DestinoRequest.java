@@ -19,4 +19,10 @@ public class DestinoRequest {
     private String codigoDepartamento;
     private String codigoProvincia;
     private String codigoDistrito;
+    private String itinerario;
+    private String terminosCondiciones;
+    private String recomendaciones;
+    private String incluye;
+    private String noIncluye;
+    private String observaciones;
 }

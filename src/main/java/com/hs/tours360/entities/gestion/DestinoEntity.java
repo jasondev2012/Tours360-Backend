@@ -23,12 +23,32 @@ public class DestinoEntity extends AuditoriaEntity {
     @JoinColumn(name = "idAgencia", referencedColumnName = "id")
     private AgenciaEntity agencia;
 
+    @Column(columnDefinition = "text")
     private String titulo;
 
+    @Column(columnDefinition = "text")
     private String subtitulo;
 
-    @Lob
+    @Column(columnDefinition = "text")
     private String descripcion;
+
+    @Column(columnDefinition = "text")
+    private String itinerario;
+
+    @Column(columnDefinition = "text")
+    private String terminosCondiciones;
+
+    @Column(columnDefinition = "text")
+    private String recomendaciones;
+
+    @Column(columnDefinition = "text")
+    private String incluye;
+
+    @Column(columnDefinition = "text")
+    private String noIncluye;
+
+    @Column(columnDefinition = "text")
+    private String observaciones;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal precioBaseSoles;

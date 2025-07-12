@@ -1,49 +1,113 @@
 package com.hs.tours360.services.gestion.impl;
 
 import com.hs.tours360.config.RequestContext;
+import com.hs.tours360.constants.CarpetaConstans;
 import com.hs.tours360.dto.CustomResponse;
-import com.hs.tours360.dto.catalogo.CatalogoReponse;
+import com.hs.tours360.dto.FiltroRequest;
+import com.hs.tours360.dto.PaginatedResponse;
 import com.hs.tours360.dto.gestion.destino.DestinoListaRequest;
 import com.hs.tours360.dto.gestion.destino.DestinoRequest;
 import com.hs.tours360.entities.catalogo.*;
 import com.hs.tours360.entities.gestion.DestinoEntity;
 import com.hs.tours360.entities.seguridad.AgenciaEntity;
+import com.hs.tours360.projection.gestion.DestinoProjection;
 import com.hs.tours360.repositories.gestion.DestinoRepository;
 import com.hs.tours360.services.gestion.DestinoService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Service
-@AllArgsConstructor
 public class DestinoServiceImpl implements DestinoService {
     private final DestinoRepository destinoRepository;
 
+    @Value("${app.url.base}")
+    private String appUrlBase;
+    DestinoServiceImpl(DestinoRepository destinoRepository) {
+        this.destinoRepository = destinoRepository;
+    }
     @Override
-    public CustomResponse<List<DestinoListaRequest>> listar() {
-        CustomResponse<List<DestinoListaRequest>> response = new CustomResponse<>();
-        List<DestinoEntity> listado = destinoRepository.findAll();
-        response.setData(listado.stream().map(destino -> new DestinoListaRequest(
-                destino.getId(),
-                destino.getTitulo(),
-                destino.getPrecioVentaSoles(),
-                destino.getPrecioVentaDolares(),
-                0,
-                0,
-                "",
-                destino.getActivo()
-        )).toList());
+    public CustomResponse<PaginatedResponse<DestinoListaRequest>> listarPaginado(FiltroRequest filtro) {
+        Integer idAgencia = RequestContext.getAgenciaId();
+        String filtroTexto = filtro.getFiltro() != null ? filtro.getFiltro() : "";
+
+        List<DestinoProjection> resultado = destinoRepository.listarPaginado(idAgencia,
+                filtroTexto,
+                filtro.getOffset(),
+                filtro.getLimit(),
+                filtro.getOrder(),
+                filtro.getOrderDirection());
+        int total = resultado.isEmpty() || resultado.getFirst().getTotal() == null
+                ? 0
+                : resultado.getFirst().getTotal();
+        List<DestinoListaRequest> contenido = resultado.stream().map(d -> new DestinoListaRequest(
+                d.getId(),
+                d.getTitulo(),
+                d.getPrecioVentaSoles(),
+                d.getPrecioVentaDolares(),
+                d.getEventosAbiertos(),
+                d.getEventosCerrados(),
+                d.getImagenReferencia() == null ? null : appUrlBase + "/api/file/img/"+ CarpetaConstans.IMAGEN_DESTINO +"/" + d.getImagenReferencia(),
+                d.getActivo()
+        )).toList();
+
+        PaginatedResponse<DestinoListaRequest> paginated = new PaginatedResponse<>(
+                contenido,
+                total,
+                filtro.getPageIndex(),
+                filtro.getPageSize()
+        );
+
+        CustomResponse<PaginatedResponse<DestinoListaRequest>> response = new CustomResponse<>();
+        response.setData(paginated);
         return response;
     }
+    @Override
+    public CustomResponse<DestinoRequest> obtener(Integer id){
+        CustomResponse<DestinoRequest> response = new CustomResponse<>();
+        Integer idAgencia = RequestContext.getAgenciaId();
+        Integer idUsuario = RequestContext.getUsuarioId();
+        DestinoEntity destinoRef = destinoRepository.getReferenceById(id);
 
+        if(Objects.equals(destinoRef.getIdUsuarioAlta(), idUsuario) && Objects.equals(destinoRef.getAgencia().getId(), idAgencia)){
+            DestinoRequest request = new DestinoRequest();
+            request.setId(destinoRef.getId());
+            request.setTitulo(destinoRef.getTitulo());
+            request.setSubtitulo(destinoRef.getSubtitulo());
+            request.setDescripcion(destinoRef.getDescripcion());
+            request.setIdCategoria(destinoRef.getCategoria().getId());
+            request.setIdNivelExigencia(destinoRef.getNivelExigencia().getId());
+            request.setPrecioBaseSoles(destinoRef.getPrecioBaseSoles());
+            request.setPrecioVentaSoles(destinoRef.getPrecioVentaSoles());
+            request.setPrecioBaseDolares(destinoRef.getPrecioBaseDolares());
+            request.setPrecioVentaDolares(destinoRef.getPrecioVentaDolares());
+            request.setCodigoDepartamento(destinoRef.getDepartamento().getCodigo());
+            request.setCodigoProvincia(destinoRef.getProvincia().getCodigo());
+            request.setCodigoDistrito(destinoRef.getDistrito().getCodigo());
+            request.setItinerario(destinoRef.getItinerario());
+            request.setTerminosCondiciones(destinoRef.getTerminosCondiciones());
+            request.setRecomendaciones(destinoRef.getRecomendaciones());
+            request.setIncluye(destinoRef.getIncluye());
+            request.setNoIncluye(destinoRef.getNoIncluye());
+            request.setObservaciones(destinoRef.getObservaciones());
+
+            response.setData(request);
+            response.setMessage("Se obtuvieron los datos correctamente");
+        }else{
+            response.setSuccess(false);
+            response.setMessage("El destino que intenta actualizar no se encuentra disponible o no existe.");
+        }
+        return response;
+    }
     @Override
     public CustomResponse<Integer> registrar(DestinoRequest destinoRequest) {
         CustomResponse<Integer> response = new CustomResponse<>();
 
-        DestinoEntity destino = getDestinoEntity(destinoRequest);
+        DestinoEntity destino = getDestinoEntity(destinoRequest, destinoRepository);
 
         DestinoEntity destinoGuardado = destinoRepository.save(destino);
         response.setData(destinoGuardado.getId());
@@ -51,7 +115,7 @@ public class DestinoServiceImpl implements DestinoService {
         return response;
     }
 
-    private static DestinoEntity getDestinoEntity(DestinoRequest destinoRequest) {
+    private static DestinoEntity getDestinoEntity(DestinoRequest destinoRequest, DestinoRepository destinoRepository) {
         Integer idAgencia = RequestContext.getAgenciaId();
         Integer idUsuario = RequestContext.getUsuarioId();
 
@@ -74,6 +138,9 @@ public class DestinoServiceImpl implements DestinoService {
         distritoEntity.setCodigo(destinoRequest.getCodigoDistrito());
 
         DestinoEntity destino = new DestinoEntity();
+        if(destinoRequest.getId() > 0){
+            destino = destinoRepository.getReferenceById(destinoRequest.getId());
+        }
         destino.setAgencia(agenciaEntity);
         destino.setCategoria(categoriaEntity);
         destino.setDepartamento(departamentoEntity);
@@ -88,15 +155,25 @@ public class DestinoServiceImpl implements DestinoService {
         destino.setPrecioVentaSoles(destinoRequest.getPrecioVentaSoles());
         destino.setPrecioBaseDolares(destinoRequest.getPrecioBaseDolares());
         destino.setPrecioVentaDolares(destinoRequest.getPrecioVentaDolares());
+
+        destino.setItinerario(destinoRequest.getItinerario());
+        destino.setTerminosCondiciones(destinoRequest.getTerminosCondiciones());
+        destino.setRecomendaciones(destinoRequest.getRecomendaciones());
+        destino.setIncluye(destinoRequest.getIncluye());
+        destino.setNoIncluye(destinoRequest.getNoIncluye());
+        destino.setObservaciones(destinoRequest.getObservaciones());
+
+
         destino.setActivo(true);
         if(destinoRequest.getId() == null || destinoRequest.getId() == 0) {
             destino.setFechaModifica(LocalDateTime.now());
-            destino.setIdUsuarioModifica(idUsuario);
+            destino.setIdUsuarioAlta(idUsuario);
         }else{
             destino.setFechaAlta(LocalDateTime.now());
-            destino.setIdUsuarioAlta(idUsuario);
+            destino.setIdUsuarioModifica(idUsuario);
         }
 
         return destino;
     }
+
 }

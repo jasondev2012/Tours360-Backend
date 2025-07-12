@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String path = request.getServletPath();
         // Omitir rutas públicas
-        if (path.startsWith("/api/auth/") || path.startsWith("/api/catalogo/auth-listar") || path.startsWith("/api/file/")) {
+        if (path.startsWith("/api/auth/") || path.startsWith("/api/catalogo/auth-listar") || path.startsWith("/api/file/agencia-logo") || path.startsWith("/api/file/img")) {
             filterChain.doFilter(request, response);
             return;
         }

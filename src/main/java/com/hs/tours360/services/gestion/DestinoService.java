@@ -1,13 +1,14 @@
 package com.hs.tours360.services.gestion;
 
 import com.hs.tours360.dto.CustomResponse;
+import com.hs.tours360.dto.FiltroRequest;
+import com.hs.tours360.dto.PaginatedResponse;
 import com.hs.tours360.dto.gestion.destino.DestinoListaRequest;
 import com.hs.tours360.dto.gestion.destino.DestinoRequest;
-import com.hs.tours360.dto.seguridad.auth.RegistroRequest;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface DestinoService {
     CustomResponse<Integer> registrar(DestinoRequest destinoRequest);
-    CustomResponse<List<DestinoListaRequest>> listar();
+    CustomResponse<DestinoRequest> obtener(Integer id);
+    CustomResponse<PaginatedResponse<DestinoListaRequest>> listarPaginado(FiltroRequest filtro);
 }
