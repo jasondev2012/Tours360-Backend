@@ -10,5 +10,6 @@ import org.springframework.data.domain.Page;
 public interface DestinoService {
     CustomResponse<Integer> registrar(DestinoRequest destinoRequest);
     CustomResponse<DestinoRequest> obtener(Integer id);
+    CustomResponse<String> eliminar(Integer id);
     CustomResponse<PaginatedResponse<DestinoListaRequest>> listarPaginado(FiltroRequest filtro);
 }

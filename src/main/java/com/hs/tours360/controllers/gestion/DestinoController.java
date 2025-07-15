@@ -30,4 +30,9 @@ public class DestinoController {
 
         return destinoService.obtener(id);
     }
+    @GetMapping("/eliminar/{id}")
+    public CustomResponse<String> eliminar(@PathVariable Integer id) {
+
+        return destinoService.eliminar(id);
+    }
 }

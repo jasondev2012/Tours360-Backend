@@ -1,8 +1,10 @@
 package com.hs.tours360.dto.gestion.destino;
 
+import com.hs.tours360.dto.carpeta.ImagenDestinoListaResponse;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class DestinoRequest {
@@ -25,4 +27,6 @@ public class DestinoRequest {
     private String incluye;
     private String noIncluye;
     private String observaciones;
+
+    private List<ImagenDestinoListaResponse> imagenesDestino;
 }

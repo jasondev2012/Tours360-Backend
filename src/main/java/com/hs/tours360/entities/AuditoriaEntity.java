@@ -2,13 +2,13 @@ package com.hs.tours360.entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Setter
-@Getter
+@Data
 @MappedSuperclass
 public abstract class AuditoriaEntity {
 

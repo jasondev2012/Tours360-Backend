@@ -1,19 +1,21 @@
 package com.hs.tours360.controllers.seguridad;
 
-import com.hs.tours360.config.RequestContext;
 import com.hs.tours360.constants.CarpetaConstans;
 import com.hs.tours360.constants.RutasConstans;
 import com.hs.tours360.dto.CustomResponse;
+import com.hs.tours360.dto.carpeta.ImagenDestinoListaResponse;
 import com.hs.tours360.services.carpeta.CarpetaService;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -33,13 +35,30 @@ public class FileController {
             }
 
             Resource resource = new UrlResource(filePath.toUri());
-
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // tipo genérico por si no se detecta
+            }
             return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                     .body(resource);
-        } catch (MalformedURLException e) {
+        } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+    @GetMapping("/eliminar")
+    public CustomResponse<List<ImagenDestinoListaResponse>> eliminar(@RequestParam String codigo, @RequestParam BigInteger id) {
+        CustomResponse<List<ImagenDestinoListaResponse>> response = new CustomResponse<>();
+        switch (codigo){
+            case CarpetaConstans.IMAGEN_DESTINO ->
+                    response = carpetaService.eliminarImagenDestino(codigo, id);
+            case CarpetaConstans.IMAGEN_EVENTO ->
+                    response = carpetaService.eliminarImagenDestino(codigo, id);
+            default ->
+                    response.setMessage("No ingresó ningún código de destino.");
+        }
+        return response;
     }
     @GetMapping("/img/{codigo}/{idDestino}/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String codigo, @PathVariable String idDestino, @PathVariable String filename) {
@@ -56,10 +75,15 @@ public class FileController {
 
             Resource resource = new UrlResource(filePath.toUri());
 
+            String contentType = Files.probeContentType(filePath);
+            if (contentType == null) {
+                contentType = "application/octet-stream"; // tipo genérico por si no se detecta
+            }
             return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                     .body(resource);
-        } catch (MalformedURLException e) {
+        } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -71,9 +95,9 @@ public class FileController {
         CustomResponse<String> response = new CustomResponse<>();
         switch (codigo){
             case CarpetaConstans.IMAGEN_DESTINO ->
-                response = carpetaService.registrarFileDestino(idDestino, files);
+                response = carpetaService.registraImagenDestino(idDestino, files);
             case CarpetaConstans.IMAGEN_EVENTO ->
-                response = carpetaService.registrarFileDestino(idDestino, files);
+                response = carpetaService.registraImagenDestino(idDestino, files);
             default ->
                 response.setMessage("No ingresó ningún código de destino.");
         }
