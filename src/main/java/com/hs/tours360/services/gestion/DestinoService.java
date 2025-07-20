@@ -12,4 +12,5 @@ public interface DestinoService {
     CustomResponse<DestinoRequest> obtener(Integer id);
     CustomResponse<String> eliminar(Integer id);
     CustomResponse<PaginatedResponse<DestinoListaRequest>> listarPaginado(FiltroRequest filtro);
+    CustomResponse<String> activar(Integer id);
 }

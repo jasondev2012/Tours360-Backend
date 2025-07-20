@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface DestinoRepository extends JpaRepository<DestinoEntity, Integer> {
     List<DestinoEntity> findAllByAgenciaId(Integer idAgencia);
-
+    List<DestinoEntity> findAllByAgenciaIdAndActivoTrue(Integer idAgencia);
     @Query(value = "SELECT id, titulo, precio_venta_soles, precio_venta_dolares, eventos_abiertos, eventos_cerrados, imagen_referencia, activo, total FROM gestion.fn_destinos_paginado(:idAgencia, :filtro, :offset, :limit, :order, :orderDirection)", nativeQuery = true)
     List<DestinoProjection> listarPaginado(
             @Param("idAgencia") Integer idAgencia,

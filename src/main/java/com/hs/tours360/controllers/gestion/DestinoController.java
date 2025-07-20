@@ -35,4 +35,9 @@ public class DestinoController {
 
         return destinoService.eliminar(id);
     }
+    @GetMapping("/activar/{id}")
+    public CustomResponse<String> activar(@PathVariable Integer id) {
+
+        return destinoService.activar(id);
+    }
 }

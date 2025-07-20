@@ -127,6 +127,24 @@ public class DestinoServiceImpl implements DestinoService {
         return response;
     }
     @Override
+    public CustomResponse<String> activar(Integer id) {
+        CustomResponse<String> response = new CustomResponse<>();
+        Integer idAgencia = RequestContext.getAgenciaId();
+        Integer idUsuario = RequestContext.getUsuarioId();
+        DestinoEntity destinoRef = destinoRepository.getReferenceById(id);
+        if(Objects.equals(destinoRef.getIdUsuarioAlta(), idUsuario) && Objects.equals(destinoRef.getAgencia().getId(), idAgencia)){
+            destinoRef.setActivo(true);
+            destinoRef.setIdUsuarioModifica(idUsuario);
+            destinoRef.setFechaModifica(LocalDateTime.now());
+            destinoRepository.save(destinoRef);
+            response.setMessage("Destino activado correctamente");
+        }else{
+            response.setSuccess(false);
+            response.setMessage("No cuenta con los permisos para activar el destino.");
+        }
+        return response;
+    }
+    @Override
     public CustomResponse<String> eliminar(Integer id) {
         CustomResponse<String> response = new CustomResponse<>();
         Integer idAgencia = RequestContext.getAgenciaId();
@@ -137,7 +155,7 @@ public class DestinoServiceImpl implements DestinoService {
             destinoRef.setIdUsuarioModifica(idUsuario);
             destinoRef.setFechaModifica(LocalDateTime.now());
             destinoRepository.save(destinoRef);
-            response.setMessage("Destino guardado correctamente");
+            response.setMessage("Destino eliminado correctamente");
         }else{
             response.setSuccess(false);
             response.setMessage("No cuenta con los permisos para eliminar el destino.");

@@ -5,6 +5,7 @@ import com.hs.tours360.constants.CatalogoConstants;
 import com.hs.tours360.dto.CustomResponse;
 import com.hs.tours360.dto.catalogo.CatalogoReponse;
 import com.hs.tours360.repositories.catalogo.*;
+import com.hs.tours360.repositories.gestion.DestinoRepository;
 import com.hs.tours360.services.catalogo.CatalogoService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class CatalogoServiceImpl implements CatalogoService {
     private final PaisRepository paisRepository;
     private final CategoriaRepository categoriaRepository;
     private final NivelExigenciaRepository nivelExigenciaRepository;
+    private final DestinoRepository destinoRepository;
     @Override
     public CustomResponse<List<CatalogoReponse>> listar(String catalogo, String padre) {
         CustomResponse<List<CatalogoReponse>> response = new CustomResponse<>();
@@ -67,6 +69,11 @@ public class CatalogoServiceImpl implements CatalogoService {
                     "Nieveles encontrados",
                     nivelExigenciaRepository.findAllByActivoTrue(),
                     nivel -> new CatalogoReponse((int)nivel.getId(), nivel.getNombre())
+            );
+            case CatalogoConstants.DESTINOS -> response = buildResponse(
+                    "Destinos",
+                    destinoRepository.findAllByAgenciaIdAndActivoTrue(idAgencia),
+                    destino -> new CatalogoReponse(destino.getId(), destino.getTitulo())
             );
             default -> {
                 response.setSuccess(false);

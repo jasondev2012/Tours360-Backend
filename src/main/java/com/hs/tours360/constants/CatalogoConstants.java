@@ -8,6 +8,7 @@ public final class CatalogoConstants {
     public static final String PAIS = "CAT00005";
     public static final String CATEGORIA_DESTINO = "CAT00006";
     public static final String NIVEL_EXIGENCIA = "CAT00007";
+    public static final String DESTINOS = "CAT00008";
     private CatalogoConstants() {
         // Constructor privado para evitar instanciación
     }
