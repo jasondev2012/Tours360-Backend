@@ -90,14 +90,14 @@ public class FileController {
 
     @PostMapping("registrar")
     public CustomResponse<String> registrar(@RequestParam("codigo") String codigo,
-                                            @RequestParam("idDestino") Integer idDestino,
+                                            @RequestParam("data") String data,
                                             @RequestParam("files") List<MultipartFile> files) {
         CustomResponse<String> response = new CustomResponse<>();
         switch (codigo){
             case CarpetaConstans.IMAGEN_DESTINO ->
-                response = carpetaService.registraImagenDestino(idDestino, files);
+                response = carpetaService.registraImagenDestino(data, files);
             case CarpetaConstans.IMAGEN_EVENTO ->
-                response = carpetaService.registraImagenDestino(idDestino, files);
+                response = carpetaService.registraImagenEvento(data, files);
             default ->
                 response.setMessage("No ingresó ningún código de destino.");
         }

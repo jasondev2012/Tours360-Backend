@@ -1,13 +1,19 @@
 package com.hs.tours360.services.carpeta.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hs.tours360.config.RequestContext;
 import com.hs.tours360.constants.CarpetaConstans;
 import com.hs.tours360.constants.RutasConstans;
 import com.hs.tours360.dto.CustomResponse;
 import com.hs.tours360.dto.carpeta.ImagenDestinoListaResponse;
 import com.hs.tours360.entities.carpeta.ImagenDestinoEntity;
+import com.hs.tours360.entities.carpeta.ImagenEventoEntity;
 import com.hs.tours360.entities.gestion.DestinoEntity;
+import com.hs.tours360.entities.gestion.EventoEntity;
 import com.hs.tours360.repositories.carpeta.ImagenDestinoRepository;
+import com.hs.tours360.repositories.carpeta.ImagenEventoRepository;
 import com.hs.tours360.services.carpeta.CarpetaService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,20 +34,23 @@ import java.util.stream.Collectors;
 public class CarpetaServiceImpl implements CarpetaService {
 
     private final ImagenDestinoRepository imagenDestinoRepository;
+    private final ImagenEventoRepository imagenEventoRepository;
 
     private static final List<String> EXTENSIONES_PERMITIDAS = Arrays.asList(".jpg", ".jpeg", ".png", ".pdf", ".docx");
     @Value("${app.url.base}")
     private String appUrlBase;
 
-    public CarpetaServiceImpl(ImagenDestinoRepository imagenDestinoRepository) {
+    public CarpetaServiceImpl(ImagenDestinoRepository imagenDestinoRepository, ImagenEventoRepository imagenEventoRepository) {
         this.imagenDestinoRepository = imagenDestinoRepository;
+        this.imagenEventoRepository = imagenEventoRepository;
     }
 
     @Override
     @Transactional
-    public CustomResponse<String> registraImagenDestino(Integer idDestino, List<MultipartFile> files) {
+    public CustomResponse<String> registraImagenDestino(String json, List<MultipartFile> files) throws JsonProcessingException {
         CustomResponse<String> response = new CustomResponse<>();
         Integer idUsuario = RequestContext.getUsuarioId();
+        Integer idAgencia = RequestContext.getAgenciaId();
 
         if (files == null || files.isEmpty()) {
             response.setMessage("No se recibieron archivos.");
@@ -49,6 +58,9 @@ public class CarpetaServiceImpl implements CarpetaService {
             return response;
         }
 
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(json);
+        Integer idDestino = node.get("idDestino").asInt();
         DestinoEntity destinoEntity = new DestinoEntity();
         destinoEntity.setId(idDestino);
 
@@ -61,8 +73,8 @@ public class CarpetaServiceImpl implements CarpetaService {
                         if (!EXTENSIONES_PERMITIDAS.contains(extension.toLowerCase())) {
                             throw new RuntimeException("Extensión no permitida: " + extension);
                         }
-
-                        String nuevoNombre = guardarArchivo(file, idDestino, extension);
+                        String rutaCarpeta = RutasConstans.DESTINO_IMAGENES.replace("[ID_AGENCIA]", idAgencia.toString()) + "/" + idDestino;
+                        String nuevoNombre = guardarArchivo(file, rutaCarpeta, extension);
 
                         ImagenDestinoEntity carpeta = new ImagenDestinoEntity();
                         carpeta.setDestino(destinoEntity);
@@ -77,6 +89,73 @@ public class CarpetaServiceImpl implements CarpetaService {
                     .collect(Collectors.toList());
 
             imagenDestinoRepository.saveAll(carpetas);
+            response.setData("Archivos registrados correctamente.");
+            return response;
+
+        } catch (Exception e) {
+            response.setMessage("Error al registrar archivos: " + e.getMessage());
+            response.setSuccess(false);
+            return response;
+        }
+    }
+
+    @Override
+    @Transactional
+    public CustomResponse<String> registraImagenEvento(String json, List<MultipartFile> files) throws JsonProcessingException {
+        CustomResponse<String> response = new CustomResponse<>();
+        Integer idUsuario = RequestContext.getUsuarioId();
+        Integer idAgencia = RequestContext.getAgenciaId();
+
+        if (files == null || files.isEmpty()) {
+            response.setMessage("No se recibieron archivos.");
+            response.setSuccess(false);
+            return response;
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree(json);
+        int idDestino = node.get("idDestino").asInt();
+        Integer idEvento = node.get("idEvento").asInt();
+        Boolean esImagenDestino = node.get("esImagenDestino").asBoolean();
+        String rutaImagenDestino = node.get("rutaImagenDestino").asToken().asString();
+
+        EventoEntity eventoEntity = new EventoEntity();
+        eventoEntity.setId(idEvento);
+
+        try {
+            List<ImagenEventoEntity> carpetas = files.stream()
+                    .map(file -> {
+                        String originalFilename = file.getOriginalFilename();
+                        String extension = obtenerExtension(originalFilename);
+
+                        if (!EXTENSIONES_PERMITIDAS.contains(extension.toLowerCase())) {
+                            throw new RuntimeException("Extensión no permitida: " + extension);
+                        }
+                        String nuevoNombre = "";
+                        if(!esImagenDestino){
+                            String rutaCarpeta = RutasConstans.EVENTO_IMAGENES.replace("[ID_AGENCIA]",
+                                    idAgencia.toString()).replace("[ID_DESTINO]", Integer.toString(idDestino)) + "/" + idEvento;
+                            nuevoNombre = guardarArchivo(file, rutaCarpeta, extension);
+                        }else{
+                            nuevoNombre = rutaImagenDestino.substring(rutaImagenDestino.lastIndexOf('/') + 1);
+                        }
+
+
+                        ImagenEventoEntity carpeta = new ImagenEventoEntity();
+                        carpeta.setEvento(eventoEntity);
+                        carpeta.setNombre(nuevoNombre); // nombre UUID.ext
+                        carpeta.setPeso(file.getSize());
+                        carpeta.setEsImagenDestino(esImagenDestino);
+                        carpeta.setRutaImagenDestino(rutaImagenDestino);
+                        carpeta.setActivo(true);
+                        carpeta.setIdUsuarioAlta(idUsuario);
+                        carpeta.setFechaModifica(LocalDateTime.now());
+                        // carpeta.setNombreOriginal(originalFilename); // si agregas este campo
+                        return carpeta;
+                    })
+                    .collect(Collectors.toList());
+
+            imagenEventoRepository.saveAll(carpetas);
             response.setData("Archivos registrados correctamente.");
             return response;
 
@@ -127,10 +206,10 @@ public class CarpetaServiceImpl implements CarpetaService {
 
     }
 
-    private String guardarArchivo(MultipartFile file, Integer idDestino, String extension) {
+    private String guardarArchivo(MultipartFile file, String carpeta, String extension) {
         String nuevoNombre = UUID.randomUUID() + extension;
 
-        Path uploadPath = Paths.get(RutasConstans.DESTINO_IMAGENES, String.valueOf(idDestino));
+        Path uploadPath = Paths.get(carpeta);
 
         try {
             if (!Files.exists(uploadPath)) {
